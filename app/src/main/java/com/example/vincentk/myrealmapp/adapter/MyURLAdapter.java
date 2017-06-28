@@ -18,7 +18,6 @@ import java.util.List;
 
 public class MyURLAdapter extends ArrayAdapter<MyURL> {
 
-    //tweets est la liste des models à afficher
     public MyURLAdapter(Context context, List<MyURL> urlList) {
         super(context, 0, urlList);
     }

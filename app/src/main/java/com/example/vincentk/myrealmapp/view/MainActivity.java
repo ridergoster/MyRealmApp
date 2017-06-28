@@ -26,10 +26,10 @@ import io.realm.RealmQuery;
 
 public class MainActivity extends AppCompatActivity {
 
-    ListView listView;
-    ArrayList<MyURL> myURLRealmList;
-    Realm realm;
-    MyURLAdapter myURLAdapter;
+    private ListView listView;
+    private ArrayList<MyURL> myURLRealmList;
+    private Realm realm;
+    private MyURLAdapter myURLAdapter;
     private Menu menu;
 
     @Override
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         realm = Realm.getDefaultInstance();
         listView = (ListView)findViewById(R.id.listView);
-        myURLRealmList = new ArrayList<MyURL>();
+        myURLRealmList = new ArrayList<>();
         myURLAdapter = new MyURLAdapter(MainActivity.this, myURLRealmList);
         listView.setAdapter(myURLAdapter);
         myURLRealmList.addAll(realm.where(MyURL.class).findAll());
@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                updateList(query);
                 return true;
             }
 
@@ -69,13 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateList(String query) {
         myURLRealmList.clear();
-        Log.d("QUERY UPDATE", query);
+
         RealmQuery<MyURL> queryRealm = realm.where(MyURL.class);
         if (query.length() > 0) {
             queryRealm.contains("name",query, Case.INSENSITIVE);
         }
-        myURLRealmList.addAll(queryRealm.findAll());
-        Log.d("newLIST", String.valueOf(myURLRealmList.size()));
+        myURLRealmList.addAll(queryRealm.findAllSorted("updateDate"));
         myURLAdapter.notifyDataSetChanged();
     }
 
@@ -89,14 +87,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void openAddActivity() {
-        Log.d("OPEN ACTIVITY", "SALUT");
         Intent intent = new Intent(this, InputActivity.class);
         startActivity(intent);
     }
 
     @Override
     protected void onDestroy() {
-        Log.d("DESTROY", "MAIN ACTIVITY");
         super.onDestroy();
         realm.close();
     }

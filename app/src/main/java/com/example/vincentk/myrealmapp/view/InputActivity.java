@@ -27,7 +27,6 @@ import io.realm.Realm;
 
 public class InputActivity extends AppCompatActivity {
 
-    Realm realm;
     EditText nameInput;
     EditText urlInput;
     EditText descriptionInput;
@@ -35,7 +34,6 @@ public class InputActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        realm = Realm.getDefaultInstance();
         setContentView(R.layout.activity_input);
         nameInput = (EditText)findViewById(R.id.nameInput);
         urlInput = (EditText)findViewById(R.id.urlInput);
@@ -68,22 +66,14 @@ public class InputActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        realm.close();
+        Realm.getDefaultInstance().close();
     }
 
     public void saveURL(View view) {
-        realm.executeTransactionAsync(new Realm.Transaction() {
+        Realm.getDefaultInstance().executeTransactionAsync(new Realm.Transaction() {
                 @Override
                 public void execute(Realm realm) {
-                    Log.d("exec MYURL: ", "BEFORE");
                     MyURL myURL = createMyURl(realm);
-                    Log.d("exec MYURL: ", "AFTER");
-                    Log.d("exec MYURL: id", String.valueOf(myURL.getId()));
-                    Log.d("exec MYURL: name", myURL.getName());
-                    Log.d("exec MYURL: url", myURL.getUrl());
-                    Log.d("exec MYURL: desc", myURL.getDescription());
-                    Log.d("exec MYURL: date", myURL.getUpdateDate().toString());
-
                     realm.copyToRealmOrUpdate(myURL);
                 }
             }, new Realm.Transaction.OnSuccess() {
@@ -100,13 +90,10 @@ public class InputActivity extends AppCompatActivity {
     }
 
     private MyURL createMyURl(Realm realm) {
-        Log.d("CREATE MYURL: ", "START");
-        Log.d("CREATE MYURL - realm:", realm.toString());
         long nextId = 1;
         if (realm.where(MyURL.class).findAll().size() > 0) {
             nextId  = realm.where(MyURL.class).max("id").longValue() + 1;
         }
-        Log.d("CREATE MYURL - id: ", String.valueOf(nextId));
 
         String name = nameInput.getText().toString();
         String url = urlInput.getText().toString();
@@ -118,7 +105,6 @@ public class InputActivity extends AppCompatActivity {
     }
 
     private void OnError(Throwable error) {
-        Log.e("ERROR", error.toString());
         Toast.makeText(this, "ERROR ON UPDATE", Toast.LENGTH_SHORT).show();
     }
 
@@ -128,6 +114,5 @@ public class InputActivity extends AppCompatActivity {
         myIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(myIntent);
         finish();
-        return;
     }
 }
